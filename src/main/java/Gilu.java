@@ -24,13 +24,21 @@ public class Gilu {
                 printLine();
                 break;
             } else if (input.equalsIgnoreCase("list")) {
-                printTasks(); // Display tasks
+                printTasks(); // Display stored tasks
             } else if (input.startsWith("mark ")) {
                 markTask(input);
             } else if (input.startsWith("unmark ")) {
                 unmarkTask(input);
+            } else if (input.startsWith("todo ")) {
+                addTodo(input.substring(5));
+            } else if (input.startsWith("deadline ")) {
+                addDeadline(input.substring(9));
+            } else if (input.startsWith("event ")) {
+                addEvent(input.substring(6));
             } else {
-                addTask(input); // Store new task
+                printLine();
+                System.out.println(" I'm not sure what you mean. Try 'list', 'todo', 'deadline', or 'event'.");
+                printLine();
             }
         }
 
@@ -40,21 +48,6 @@ public class Gilu {
     // Prints horizontal squiggly lines
     private static void printLine() {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    }
-
-    // Adds a new task
-    private static void addTask(String taskDescription) {
-        if (taskCount < MAX_TASKS) {
-            tasks[taskCount] = new Task(taskDescription);
-            taskCount++;
-            printLine();
-            System.out.println(" Added: " + taskDescription);
-            printLine();
-        } else {
-            printLine();
-            System.out.println(" Sorry, I can't store more tasks! Limit reached.");
-            printLine();
-        }
     }
 
     // Displays the task list
@@ -113,5 +106,46 @@ public class Gilu {
             System.out.println(" Invalid command format. Use: unmark <task_number>");
             printLine();
         }
+    }
+
+    // Adds a Todo task
+    private static void addTodo(String description) {
+        tasks[taskCount++] = new Todo(description);
+        printAddedTask();
+    }
+
+    // Adds a Deadline task
+    private static void addDeadline(String input) {
+        String[] parts = input.split(" /by ", 2);
+        if (parts.length == 2) {
+            tasks[taskCount++] = new Deadline(parts[0], parts[1]);
+            printAddedTask();
+        } else {
+            printLine();
+            System.out.println(" Invalid format. Use: deadline <task> /by <date>");
+            printLine();
+        }
+    }
+
+    // Adds an Event task
+    private static void addEvent(String input) {
+        String[] parts = input.split(" /from | /to ", 3);
+        if (parts.length == 3) {
+            tasks[taskCount++] = new Event(parts[0], parts[1], parts[2]);
+            printAddedTask();
+        } else {
+            printLine();
+            System.out.println(" Invalid format. Use: event <task> /from <start> /to <end>");
+            printLine();
+        }
+    }
+
+    // Prints task count after adding a task
+    private static void printAddedTask() {
+        printLine();
+        System.out.println(" Got it. I've added this task:");
+        System.out.println("   " + tasks[taskCount - 1]);
+        System.out.println(" Now you have " + taskCount + " tasks in the list.");
+        printLine();
     }
 }
