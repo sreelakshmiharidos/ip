@@ -1,12 +1,12 @@
 import java.util.Scanner;
 
 public class Gilu {
-    private static final int MAX_TASKS = 100;  // maximum number of tasks
-    private static String[] tasks = new String[MAX_TASKS]; // fixed-size array for tasks
-    private static int taskCount = 0;  // counter for tasks
+    private static final int MAX_TASKS = 100;
+    private static Task[] tasks = new Task[MAX_TASKS]; // Array of Task objects
+    private static int taskCount = 0;
 
     public static void main(String[] args) {
-        // welcome message
+        // Welcome message
         printLine();
         System.out.println(" Heyoo! I'm Gilu, your trusted friend!");
         System.out.println(" How can I make your day better?");
@@ -24,27 +24,31 @@ public class Gilu {
                 printLine();
                 break;
             } else if (input.equalsIgnoreCase("list")) {
-                printTasks();  // displays current task list
+                printTasks(); // Display tasks
+            } else if (input.startsWith("mark ")) {
+                markTask(input);
+            } else if (input.startsWith("unmark ")) {
+                unmarkTask(input);
             } else {
-                addTask(input);  // adds a new task
+                addTask(input); // Store new task
             }
         }
 
         scanner.close();
     }
 
-    // helper method to print horizontal squiggly lines
+    // Prints horizontal squiggly lines
     private static void printLine() {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
-    // method to add a task
-    private static void addTask(String task) {
+    // Adds a new task
+    private static void addTask(String taskDescription) {
         if (taskCount < MAX_TASKS) {
-            tasks[taskCount] = task;
+            tasks[taskCount] = new Task(taskDescription);
             taskCount++;
             printLine();
-            System.out.println(" Added: " + task);
+            System.out.println(" Added: " + taskDescription);
             printLine();
         } else {
             printLine();
@@ -53,16 +57,61 @@ public class Gilu {
         }
     }
 
-    // method to display the task list
+    // Displays the task list
     private static void printTasks() {
         printLine();
         if (taskCount == 0) {
             System.out.println(" No tasks stored yet.");
         } else {
+            System.out.println(" Here are the tasks in your list:");
             for (int i = 0; i < taskCount; i++) {
                 System.out.println(" " + (i + 1) + ". " + tasks[i]);
             }
         }
         printLine();
+    }
+
+    // Marks a task as done
+    private static void markTask(String input) {
+        try {
+            int taskIndex = Integer.parseInt(input.split(" ")[1]) - 1;
+            if (taskIndex >= 0 && taskIndex < taskCount) {
+                tasks[taskIndex].markAsDone();
+                printLine();
+                System.out.println(" Cool! I've marked this task as done:");
+                System.out.println("   " + tasks[taskIndex]);
+                printLine();
+            } else {
+                printLine();
+                System.out.println(" Invalid task number.");
+                printLine();
+            }
+        } catch (Exception e) {
+            printLine();
+            System.out.println(" Invalid command format. Use: mark <task_number>");
+            printLine();
+        }
+    }
+
+    // Unmarks a task (sets it back to not done)
+    private static void unmarkTask(String input) {
+        try {
+            int taskIndex = Integer.parseInt(input.split(" ")[1]) - 1;
+            if (taskIndex >= 0 && taskIndex < taskCount) {
+                tasks[taskIndex].markAsNotDone();
+                printLine();
+                System.out.println(" No problem! I've marked this task as not done yet:");
+                System.out.println("   " + tasks[taskIndex]);
+                printLine();
+            } else {
+                printLine();
+                System.out.println(" Invalid task number.");
+                printLine();
+            }
+        } catch (Exception e) {
+            printLine();
+            System.out.println(" Invalid command format. Use: unmark <task_number>");
+            printLine();
+        }
     }
 }
