@@ -1,6 +1,29 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 
+// Enum for task types
+enum TaskType {
+    TODO, DEADLINE, EVENT;
+}
+
+// Enum for command types
+enum Command {
+    LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, EXIT, UNKNOWN;
+
+    // Converts user input into an enum value
+    public static Command fromInput(String input) {
+        if (input.equalsIgnoreCase("list")) return LIST;
+        if (input.startsWith("mark")) return MARK;
+        if (input.startsWith("unmark")) return UNMARK;
+        if (input.startsWith("delete")) return DELETE;
+        if (input.startsWith("todo")) return TODO;
+        if (input.startsWith("deadline")) return DEADLINE;
+        if (input.startsWith("event")) return EVENT;
+        if (input.equalsIgnoreCase("bye")) return EXIT;
+        return UNKNOWN;
+    }
+}
+
 public class Gilu {
     private static final ArrayList<Task> tasks = new ArrayList<>();
 
@@ -13,17 +36,12 @@ public class Gilu {
 
         Scanner scanner = new Scanner(System.in);
 
-        while (true) {
+        boolean isRunning = true;
+
+        while (isRunning) {
             String input = scanner.nextLine().trim();
             try {
-                if (input.equalsIgnoreCase("bye")) {
-                    // Exit message
-                    printLine();
-                    System.out.println(" Bye for now! But I hope to see you again soon!");
-                    printLine();
-                    break;
-                }
-                processCommand(input);
+                isRunning = processCommand(input);
             } catch (GiluException e) {
                 printLine();
                 System.out.println(e.getMessage());
@@ -32,28 +50,47 @@ public class Gilu {
         }
 
         scanner.close();
+
     }
 
     // Processes the user's command and throws GiluException for errors
-    private static void processCommand(String input) throws GiluException {
-        if (input.equalsIgnoreCase("list")) {
-            printTasks();
-        } else if (input.startsWith("mark")) {
-            markTask(input);
-        } else if (input.startsWith("unmark")) {
-            unmarkTask(input);
-        } else if (input.startsWith("todo")) {
-            addTodo(input.length() > 4 ? input.substring(4).trim() : "");
-        } else if (input.startsWith("deadline")) {
-            addDeadline(input.length() > 8 ? input.substring(8).trim() : "");
-        } else if (input.startsWith("event")) {
-            addEvent(input.length() > 5 ? input.substring(5).trim() : "");
-        } else if (input.startsWith("delete")) {
-            deleteTask(input);
-        } else {
-            throw new GiluException("Uh-oh! I didn’t get that. Try 'list', 'todo', 'deadline', 'event', or 'delete'.");
+    private static boolean processCommand(String input) throws GiluException {
+        Command command = Command.fromInput(input);
+
+        switch (command) {
+            case LIST:
+                printTasks();
+                break;
+            case MARK:
+                markTask(input);
+                break;
+            case UNMARK:
+                unmarkTask(input);
+                break;
+            case DELETE:
+                deleteTask(input);
+                break;
+            case TODO:
+                addTodo(input.length() > 4 ? input.substring(4).trim() : "");
+                break;
+            case DEADLINE:
+                addDeadline(input.length() > 8 ? input.substring(8).trim() : "");
+                break;
+            case EVENT:
+                addEvent(input.length() > 5 ? input.substring(5).trim() : "");
+                break;
+            case EXIT:
+                printLine();
+                System.out.println(" Bye for now! But I hope to see you again soon!");
+                printLine();
+                return false;
+            default:
+                throw new GiluException("Uh-oh! I didn’t get that. Try 'list', 'todo', 'deadline', 'event', or 'delete'.");
         }
+
+        return true;
     }
+
 
     // Prints horizontal squiggly lines
     private static void printLine() {
@@ -64,7 +101,7 @@ public class Gilu {
     private static void printTasks() {
         printLine();
         if (tasks.isEmpty()) {
-            System.out.println(" No tasks stored yet.");
+            System.out.println(" Yay! There are no tasks as of now!");
         } else {
             System.out.println(" Here are the tasks in your list:");
             for (int i = 0; i < tasks.size(); i++) {
