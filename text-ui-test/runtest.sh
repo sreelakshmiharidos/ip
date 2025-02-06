@@ -1,32 +1,40 @@
 #!/usr/bin/env bash
 
-# create bin directory if it doesn't exist
+# Define test storage file path
+TEST_STORAGE_FILE="./data/gilu_test.txt"
+
+# Create bin directory if it doesn't exist
 if [ ! -d "../bin" ]
 then
     mkdir ../bin
 fi
 
-# delete output from previous run
+# Delete output from previous run
 if [ -e "./ACTUAL.TXT" ]
 then
     rm ACTUAL.TXT
 fi
 
-# compile the code into the bin folder, terminates if error occurred
-if ! javac -cp ../src/main/java -Xlint:none -d ../bin ../src/main/java/*.java
+# Ensure the test storage file starts empty
+rm -f $TEST_STORAGE_FILE
+mkdir -p "./data"
+touch $TEST_STORAGE_FILE
+
+# Compile the code into the bin folder, terminate if error occurred
+if ! javac -cp ../src/main/java -Xlint:none -d ../bin ../src/main/java/gilu/*.java
 then
     echo "********** BUILD FAILURE **********"
     exit 1
 fi
 
-# run the program, feed commands from input.txt file and redirect the output to the ACTUAL.TXT
-java -classpath ../bin Gilu < input.txt > ACTUAL.TXT
+# Run the program, passing the test storage file as an argument
+java -classpath ../bin gilu.Gilu $TEST_STORAGE_FILE < input.txt > ACTUAL.TXT
 
-# convert to UNIX format
+# Convert to UNIX format
 cp EXPECTED.TXT EXPECTED-UNIX.TXT
 dos2unix ACTUAL.TXT EXPECTED-UNIX.TXT
 
-# compare the output to the expected output
+# Compare the output to the expected output
 diff ACTUAL.TXT EXPECTED-UNIX.TXT
 if [ $? -eq 0 ]
 then

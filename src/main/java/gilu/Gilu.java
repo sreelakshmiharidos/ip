@@ -1,33 +1,37 @@
+package gilu;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-// Enum for task types
-enum TaskType {
-    TODO, DEADLINE, EVENT;
-}
-
-// Enum for command types
-enum Command {
-    LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, EXIT, UNKNOWN;
-
-    // Converts user input into an enum value
-    public static Command fromInput(String input) {
-        if (input.equalsIgnoreCase("list")) return LIST;
-        if (input.startsWith("mark")) return MARK;
-        if (input.startsWith("unmark")) return UNMARK;
-        if (input.startsWith("delete")) return DELETE;
-        if (input.startsWith("todo")) return TODO;
-        if (input.startsWith("deadline")) return DEADLINE;
-        if (input.startsWith("event")) return EVENT;
-        if (input.equalsIgnoreCase("bye")) return EXIT;
-        return UNKNOWN;
-    }
-}
-
+/**
+ * Gilu is a chatbot that helps manage tasks.
+ * Tasks are stored persistently using file-based storage.
+ */
 public class Gilu {
-    private static final ArrayList<Task> tasks = new ArrayList<>();
+    private static final String DEFAULT_STORAGE_PATH = "./data/gilu.txt";
+    private static List<Task> tasks;
+    private static Storage storage;
 
+    /**
+     * The main entry point of the chatbot.
+     *
+     * @param args Optional arguments (e.g., custom storage file path for testing).
+     */
     public static void main(String[] args) {
+        // Determine the storage file path (real or test file)
+        String storagePath = (args.length > 0) ? args[0] : DEFAULT_STORAGE_PATH;
+        storage = new Storage(storagePath);
+
+        // Load tasks from file
+        try {
+            tasks = storage.loadTasks();
+        } catch (IOException e) {
+            System.out.println("Error loading tasks: " + e.getMessage());
+            tasks = new ArrayList<>();
+        }
+
         // Welcome message
         printLine();
         System.out.println(" Heyoo! I'm Gilu, your trusted friend!");
@@ -35,7 +39,6 @@ public class Gilu {
         printLine();
 
         Scanner scanner = new Scanner(System.in);
-
         boolean isRunning = true;
 
         while (isRunning) {
@@ -50,10 +53,15 @@ public class Gilu {
         }
 
         scanner.close();
-
     }
 
-    // Processes the user's command and throws GiluException for errors
+    /**
+     * Processes a user command and performs the corresponding action.
+     *
+     * @param input The user input command.
+     * @return True if the chatbot should continue running, false if it should exit.
+     * @throws GiluException If the command is invalid.
+     */
     private static boolean processCommand(String input) throws GiluException {
         Command command = Command.fromInput(input);
 
@@ -63,21 +71,27 @@ public class Gilu {
                 break;
             case MARK:
                 markTask(input);
+                saveTasks();
                 break;
             case UNMARK:
                 unmarkTask(input);
+                saveTasks();
                 break;
             case DELETE:
                 deleteTask(input);
+                saveTasks();
                 break;
             case TODO:
                 addTodo(input.length() > 4 ? input.substring(4).trim() : "");
+                saveTasks();
                 break;
             case DEADLINE:
                 addDeadline(input.length() > 8 ? input.substring(8).trim() : "");
+                saveTasks();
                 break;
             case EVENT:
                 addEvent(input.length() > 5 ? input.substring(5).trim() : "");
+                saveTasks();
                 break;
             case EXIT:
                 printLine();
@@ -91,13 +105,16 @@ public class Gilu {
         return true;
     }
 
-
-    // Prints horizontal squiggly lines
+    /**
+     * Prints a horizontal line for UI formatting.
+     */
     private static void printLine() {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
-    // Displays the task list
+    /**
+     * Displays the list of current tasks.
+     */
     private static void printTasks() {
         printLine();
         if (tasks.isEmpty()) {
@@ -111,7 +128,13 @@ public class Gilu {
         printLine();
     }
 
-    // Gets the task index from input
+    /**
+     * Retrieves the task index from the user input.
+     *
+     * @param input The user command containing the task number.
+     * @return The index of the task in the list.
+     * @throws GiluException If the input is invalid.
+     */
     private static int getTaskIndex(String input) throws GiluException {
         try {
             int taskIndex = Integer.parseInt(input.split(" ")[1]) - 1;
@@ -124,7 +147,12 @@ public class Gilu {
         }
     }
 
-    // Marks a task as done
+    /**
+     * Marks a task as done.
+     *
+     * @param input The user input specifying the task to mark.
+     * @throws GiluException If the task number is invalid.
+     */
     private static void markTask(String input) throws GiluException {
         int taskIndex = getTaskIndex(input);
         tasks.get(taskIndex).markAsDone();
@@ -134,7 +162,12 @@ public class Gilu {
         printLine();
     }
 
-    // Unmarks a task
+    /**
+     * Unmarks a task.
+     *
+     * @param input The user input specifying the task to unmark.
+     * @throws GiluException If the task number is invalid.
+     */
     private static void unmarkTask(String input) throws GiluException {
         int taskIndex = getTaskIndex(input);
         tasks.get(taskIndex).markAsNotDone();
@@ -144,7 +177,12 @@ public class Gilu {
         printLine();
     }
 
-    // Deletes a task
+    /**
+     * Deletes a task from the list.
+     *
+     * @param input The user input specifying the task to delete.
+     * @throws GiluException If the task number is invalid.
+     */
     private static void deleteTask(String input) throws GiluException {
         int taskIndex = getTaskIndex(input);
         Task removedTask = tasks.remove(taskIndex);
@@ -155,7 +193,12 @@ public class Gilu {
         printLine();
     }
 
-    // Adds a Todo task
+    /**
+     * Adds a new Todo task.
+     *
+     * @param description The description of the todo task.
+     * @throws GiluException If the description is empty.
+     */
     private static void addTodo(String description) throws GiluException {
         if (description.isEmpty()) {
             throw new GiluException("Oops! I need some details for your ToDo. What should I remind you about?");
@@ -164,31 +207,50 @@ public class Gilu {
         printAddedTask();
     }
 
-    // Adds a Deadline task
+    /**
+     * Adds a new Deadline task.
+     *
+     * @param input The task description and deadline.
+     * @throws GiluException If the input format is incorrect.
+     */
     private static void addDeadline(String input) throws GiluException {
         String[] parts = input.split(" /by ", 2);
-        if (parts.length < 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
+        if (parts.length < 2) {
             throw new GiluException("Whoops! Your deadline is missing something. Try: deadline <task> /by <date>.");
         }
         tasks.add(new Deadline(parts[0], parts[1]));
         printAddedTask();
     }
 
-    // Adds an Event task
+    /**
+     * Adds a new Event task.
+     *
+     * @param input The task description, start time, and end time.
+     * @throws GiluException If the input format is incorrect.
+     */
     private static void addEvent(String input) throws GiluException {
-        String[] parts = input.split(" /from ", 2);
-        if (parts.length < 2) {
+        String[] parts = input.split(" /from | /to ", 3);
+        if (parts.length < 3) {
             throw new GiluException("Your event needs details! Use: event <task> /from <start> /to <end>");
         }
-        String[] timeParts = parts[1].split(" /to ", 2);
-        if (timeParts.length < 2) {
-            throw new GiluException("Oops! Your event needs both a start and end time. Try: event <task> /from <start> /to <end>");
-        }
-        tasks.add(new Event(parts[0], timeParts[0], timeParts[1]));
+        tasks.add(new Event(parts[0], parts[1], parts[2]));
         printAddedTask();
     }
 
-    // Prints task count after adding a task
+    /**
+     * Saves the current task list to storage.
+     */
+    private static void saveTasks() {
+        try {
+            storage.saveTasks(tasks);
+        } catch (IOException e) {
+            System.out.println("Error saving tasks: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Prints task count after adding a task.
+     */
     private static void printAddedTask() {
         printLine();
         System.out.println(" Got it. I've added this task:");
