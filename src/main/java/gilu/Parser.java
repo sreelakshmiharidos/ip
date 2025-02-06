@@ -46,6 +46,12 @@ public class Parser {
             case DELETE:
                 tasks.deleteTask(input, ui, storage);
                 break;
+            case FIND:
+                if (input.length() <= 5) {
+                    throw new GiluException("Oops! Please specify a keyword to search.");
+                }
+                tasks.findTasks(input.substring(5).trim(), ui);
+                break;
             case EXIT:
                 ui.showMessage(" Bye for now! But I hope to see you again soon!");
                 return false;
