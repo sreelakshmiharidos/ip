@@ -270,4 +270,13 @@ public class TaskList {
         ui.printAddedTask(task, tasks.size());
         storage.saveTasks(tasks);
     }
+
+    /**
+     * Retrieves the list of tasks.
+     *
+     * @return The list of tasks managed by this TaskList.
+     */
+    public List<Task> getTasks() {
+        return tasks;
+    }
 }
