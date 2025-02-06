@@ -272,6 +272,32 @@ public class TaskList {
     }
 
     /**
+     * Finds tasks that contain a specific keyword in their description.
+     *
+     * @param keyword The keyword to search for.
+     * @param ui      The Ui object for displaying results.
+     */
+    public void findTasks(String keyword, Ui ui) {
+        List<Task> matchingTasks = new ArrayList<>();
+
+        for (Task task : tasks) {
+            if (task.getDescription().contains(keyword)) {
+                matchingTasks.add(task);
+            }
+        }
+
+        if (matchingTasks.isEmpty()) {
+            ui.showMessage(" No matching tasks found.");
+        } else {
+            ui.showMessage(" Here are the matching tasks in your list:");
+            for (int i = 0; i < matchingTasks.size(); i++) {
+                System.out.println(" " + (i + 1) + ". " + matchingTasks.get(i));
+            }
+            ui.showLine();
+        }
+    }
+
+    /**
      * Retrieves the list of tasks.
      *
      * @return The list of tasks managed by this TaskList.
