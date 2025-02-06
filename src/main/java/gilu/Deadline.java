@@ -1,46 +1,49 @@
 package gilu;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
- * Represents a Deadline task.
+ * Represents a task with a deadline.
  */
 public class Deadline extends Task {
-    private final String by;
+    private final LocalDateTime by;
 
     /**
-     * Constructs a Deadline with the given description and deadline date.
+     * Constructs a Deadline object.
      *
-     * @param description The description of the Deadline.
-     * @param by The deadline date/time.
+     * @param description The description of the task.
+     * @param by          The deadline of the task.
      */
-    public Deadline(String description, String by) {
+    public Deadline(String description, LocalDateTime by) {
         super(description);
         this.by = by;
     }
 
     /**
-     * Constructs a Deadline with the given description, deadline date, and completion status.
+     * Constructs a Deadline object with a completion status.
      *
-     * @param description The description of the Deadline.
-     * @param by The deadline date/time.
-     * @param isDone Whether the Deadline is marked as done.
+     * @param description The description of the task.
+     * @param by          The deadline of the task.
+     * @param isDone      Whether the task is completed.
      */
-    public Deadline(String description, String by, boolean isDone) {
+    public Deadline(String description, LocalDateTime by, boolean isDone) {
         super(description);
         this.by = by;
         this.isDone = isDone;
     }
 
     /**
-     * Gets the deadline date/time.
+     * Returns the deadline of the task.
      *
-     * @return The deadline date/time.
+     * @return The deadline as a LocalDateTime.
      */
-    public String getBy() {
+    public LocalDateTime getBy() {
         return by;
     }
 
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
+        return "[D]" + super.toString() + " (by: " + by.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm")) + ")";
     }
 }

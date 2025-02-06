@@ -1,6 +1,9 @@
 package gilu;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -69,6 +72,9 @@ public class Gilu {
             case LIST:
                 printTasks();
                 break;
+            case LIST_DATE:
+                listTasksOnDate(input);
+                break;
             case MARK:
                 markTask(input);
                 saveTasks();
@@ -82,15 +88,15 @@ public class Gilu {
                 saveTasks();
                 break;
             case TODO:
-                addTodo(input.length() > 4 ? input.substring(4).trim() : "");
+                addTodo(input.substring(4).trim());
                 saveTasks();
                 break;
             case DEADLINE:
-                addDeadline(input.length() > 8 ? input.substring(8).trim() : "");
+                addDeadline(input.substring(8).trim());
                 saveTasks();
                 break;
             case EVENT:
-                addEvent(input.length() > 5 ? input.substring(5).trim() : "");
+                addEvent(input.substring(5).trim());
                 saveTasks();
                 break;
             case EXIT:
@@ -126,6 +132,50 @@ public class Gilu {
             }
         }
         printLine();
+    }
+
+    /**
+     * Lists tasks that occur on a specified date or datetime.
+     *
+     * @param input The user input containing the date in the format yyyy-MM-dd or yyyy-MM-dd HH:mm.
+     * @throws GiluException If the date format is invalid or no tasks match the input.
+     */
+    private static void listTasksOnDate(String input) throws GiluException {
+        try {
+            String[] parts = input.split(" ");
+            LocalDate date;
+
+            // Check if input has only date (yyyy-MM-dd) or date-time (yyyy-MM-dd HH:mm)
+            if (parts[1].matches("\\d{4}-\\d{2}-\\d{2}")) {
+                date = LocalDate.parse(parts[1]); // Parse date-only
+            } else {
+                throw new GiluException("Invalid date format. Use yyyy-MM-dd.");
+            }
+
+            printLine();
+            System.out.println(" Here are the tasks on " + date.format(DateTimeFormatter.ofPattern("MMM dd yyyy")) + ":");
+
+            boolean hasTasks = false;
+            for (Task task : tasks) {
+                if (task instanceof Deadline && ((Deadline) task).getBy().toLocalDate().equals(date)) {
+                    System.out.println("   " + task);
+                    hasTasks = true;
+                } else if (task instanceof Event) {
+                    Event event = (Event) task;
+                    if (!date.isBefore(event.getFrom().toLocalDate()) && !date.isAfter(event.getTo().toLocalDate())) {
+                        System.out.println("   " + task);
+                        hasTasks = true;
+                    }
+                }
+            }
+
+            if (!hasTasks) {
+                System.out.println("   No tasks found for this date.");
+            }
+            printLine();
+        } catch (Exception e) {
+            throw new GiluException("Invalid date format. Use yyyy-MM-dd.");
+        }
     }
 
     /**
@@ -215,11 +265,17 @@ public class Gilu {
      */
     private static void addDeadline(String input) throws GiluException {
         String[] parts = input.split(" /by ", 2);
-        if (parts.length < 2) {
-            throw new GiluException("Whoops! Your deadline is missing something. Try: deadline <task> /by <date>.");
+        if (parts.length < 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
+            throw new GiluException("Whoops! Your deadline is missing something. Try: deadline <task> /by <yyyy-MM-dd HHmm>.");
         }
-        tasks.add(new Deadline(parts[0], parts[1]));
-        printAddedTask();
+
+        try {
+            LocalDateTime by = LocalDateTime.parse(parts[1].trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+            tasks.add(new Deadline(parts[0].trim(), by));
+            printAddedTask();
+        } catch (Exception e) {
+            throw new GiluException("Invalid date format! Use: yyyy-MM-dd HHmm (e.g., 2023-12-15 1800)");
+        }
     }
 
     /**
@@ -229,12 +285,23 @@ public class Gilu {
      * @throws GiluException If the input format is incorrect.
      */
     private static void addEvent(String input) throws GiluException {
-        String[] parts = input.split(" /from | /to ", 3);
-        if (parts.length < 3) {
-            throw new GiluException("Your event needs details! Use: event <task> /from <start> /to <end>");
+        String[] parts = input.split(" /from ", 2);
+        if (parts.length < 2) {
+            throw new GiluException("Your event needs details! Use: event <task> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>");
         }
-        tasks.add(new Event(parts[0], parts[1], parts[2]));
-        printAddedTask();
+        String[] timeParts = parts[1].split(" /to ", 2);
+        if (timeParts.length < 2) {
+            throw new GiluException("Oops! Your event needs both a start and end time. Try: event <task> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>");
+        }
+
+        try {
+            LocalDateTime from = LocalDateTime.parse(timeParts[0].trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+            LocalDateTime to = LocalDateTime.parse(timeParts[1].trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+            tasks.add(new Event(parts[0].trim(), from, to));
+            printAddedTask();
+        } catch (Exception e) {
+            throw new GiluException("Invalid date format! Use: yyyy-MM-dd HHmm (e.g., 2023-12-10 1400)");
+        }
     }
 
     /**

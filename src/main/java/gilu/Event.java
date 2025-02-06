@@ -1,34 +1,37 @@
 package gilu;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
- * Represents an Event task with a start and end time.
+ * Represents a task that spans a time period.
  */
 public class Event extends Task {
-    private final String from;
-    private final String to;
+    private final LocalDateTime from;
+    private final LocalDateTime to;
 
     /**
-     * Constructs an Event with the given description, start, and end times.
+     * Constructs an Event object.
      *
-     * @param description The description of the Event.
-     * @param from The start time of the Event.
-     * @param to The end time of the Event.
+     * @param description The description of the task.
+     * @param from        The start time of the event.
+     * @param to          The end time of the event.
      */
-    public Event(String description, String from, String to) {
+    public Event(String description, LocalDateTime from, LocalDateTime to) {
         super(description);
         this.from = from;
         this.to = to;
     }
 
     /**
-     * Constructs an Event with the given description, start, end times, and completion status.
+     * Constructs an Event object with a completion status.
      *
-     * @param description The description of the Event.
-     * @param from The start time of the Event.
-     * @param to The end time of the Event.
-     * @param isDone Whether the Event is marked as done.
+     * @param description The description of the task.
+     * @param from        The start time of the event.
+     * @param to          The end time of the event.
+     * @param isDone      Whether the task is completed.
      */
-    public Event(String description, String from, String to, boolean isDone) {
+    public Event(String description, LocalDateTime from, LocalDateTime to, boolean isDone) {
         super(description);
         this.from = from;
         this.to = to;
@@ -36,25 +39,26 @@ public class Event extends Task {
     }
 
     /**
-     * Gets the start time of the Event.
+     * Returns the start time of the event.
      *
-     * @return The start time of the Event.
+     * @return The start time as a LocalDateTime.
      */
-    public String getFrom() {
+    public LocalDateTime getFrom() {
         return from;
     }
 
     /**
-     * Gets the end time of the Event.
+     * Returns the end time of the event.
      *
-     * @return The end time of the Event.
+     * @return The end time as a LocalDateTime.
      */
-    public String getTo() {
+    public LocalDateTime getTo() {
         return to;
     }
 
     @Override
     public String toString() {
-        return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
+        return "[E]" + super.toString() + " (from: " + from.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm")) +
+                " to: " + to.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm")) + ")";
     }
 }

@@ -4,7 +4,7 @@ package gilu;
  * Represents the different commands supported by Gilu.
  */
 public enum Command {
-    LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, EXIT, UNKNOWN;
+    LIST, LIST_DATE, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, EXIT, UNKNOWN;
 
     /**
      * Converts user input into a corresponding Command enum.
@@ -15,6 +15,9 @@ public enum Command {
     public static Command fromInput(String input) {
         if (input.equalsIgnoreCase("list")) {
             return LIST;
+        }
+        if (input.matches("list \\d{4}-\\d{2}-\\d{2}")) {
+            return LIST_DATE;
         }
         if (input.startsWith("mark")) {
             return MARK;
