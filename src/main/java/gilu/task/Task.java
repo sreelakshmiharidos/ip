@@ -4,7 +4,7 @@ package gilu.task;
  * Represents a generic task with a description and completion status.
  */
 public class Task {
-    protected String description;
+    final String description;
     protected boolean isDone;
 
     /**
@@ -23,7 +23,7 @@ public class Task {
      * @return "X" if the task is done, otherwise " ".
      */
     public String getStatusIcon() {
-        return (isDone ? "X" : " ");
+        return isDone ? "X" : " ";
     }
 
     /**
