@@ -1,4 +1,4 @@
-package gilu;
+package gilu.task;
 
 /**
  * Represents a Todo task.

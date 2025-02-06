@@ -1,4 +1,4 @@
-package gilu;
+package gilu.command;
 
 /**
  * Represents the different commands supported by Gilu.

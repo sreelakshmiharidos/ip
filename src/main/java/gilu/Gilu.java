@@ -1,5 +1,7 @@
 package gilu;
 
+import gilu.exception.GiluException;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;

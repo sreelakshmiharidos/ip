@@ -1,5 +1,10 @@
 package gilu;
 
+import gilu.task.Deadline;
+import gilu.task.Event;
+import gilu.task.Task;
+import gilu.task.Todo;
+
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

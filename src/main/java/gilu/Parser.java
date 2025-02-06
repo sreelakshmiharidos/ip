@@ -1,5 +1,8 @@
 package gilu;
 
+import gilu.command.Command;
+import gilu.exception.GiluException;
+
 /**
  * Parses user input and executes the corresponding commands.
  */

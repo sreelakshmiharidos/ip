@@ -1,4 +1,4 @@
-package gilu;
+package gilu.exception;
 
 /**
  * Represents exceptions specific to the Gilu chatbot.

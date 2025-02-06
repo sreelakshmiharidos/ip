@@ -1,4 +1,4 @@
-package gilu;
+package gilu.task;
 
 /**
  * Represents different types of tasks.
