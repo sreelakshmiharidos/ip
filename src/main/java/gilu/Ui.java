@@ -8,7 +8,7 @@ import gilu.task.Task;
 public class Ui {
 
     /**
-     * Prints a horizontal line for formatting.
+     * Prints a horizontal line.
      */
     public void showLine() {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -36,7 +36,7 @@ public class Ui {
     }
 
     /**
-     * Prints a message confirming that a task was added.
+     * Prints a confirmation message for adding a task.
      *
      * @param task      The task that was added.
      * @param taskCount The total number of tasks after addition.
