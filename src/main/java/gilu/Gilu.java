@@ -59,8 +59,11 @@ public class Gilu {
 
     public static void main(String[] args) {
         String storagePath = (args.length > 0) ? args[0] : DEFAULT_STORAGE_PATH;
+        clearTestFileIfNeeded(args, storagePath);
+        runGilu(storagePath);
+    }
 
-        // If a test file is used, clear it before loading tasks
+    private static void clearTestFileIfNeeded(String[] args, String storagePath) {
         if (args.length > 0) {
             try {
                 new FileWriter(storagePath, false).close(); // Truncate test file
@@ -68,7 +71,9 @@ public class Gilu {
                 System.out.println("Error clearing test file: " + e.getMessage());
             }
         }
+    }
 
+    private static void runGilu(String storagePath) {
         new Gilu(storagePath).run();
     }
 }
