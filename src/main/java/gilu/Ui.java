@@ -7,42 +7,16 @@ import gilu.task.Task;
  */
 public class Ui {
 
-    /**
-     * Prints a horizontal line.
-     */
-    public void showLine() {
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    public String showMessage(String message) {
+        return message + "\n";
     }
 
-    /**
-     * Displays a message to the user.
-     *
-     * @param message The message to display.
-     */
-    public void showMessage(String message) {
-        showLine();
-        System.out.println(message);
-        showLine();
+    public String showWelcomeMessage() {
+        return " Heyoo! I'm Gilu, your trusted friend!\n" +
+                " How can I make your day better?\n";
     }
 
-    /**
-     * Displays the welcome message.
-     */
-    public void showWelcomeMessage() {
-        showLine();
-        System.out.println(" Heyoo! I'm Gilu, your trusted friend!");
-        System.out.println(" How can I make your day better?");
-        showLine();
-    }
-
-    /**
-     * Prints a confirmation message for adding a task.
-     *
-     * @param task      The task that was added.
-     * @param taskCount The total number of tasks after addition.
-     */
-    public void printAddedTask(Task task, int taskCount) {
-        showMessage(" Got it. I've added this task:\n   " + task + "\n Now you have "
-                + taskCount + (taskCount == 1 ? " task" : " tasks") + " in the list.");
+    public String printAddedTask(Task task, int taskCount) {
+        return showMessage("Got it. I've added this task:\n   " + task + "\nNow you have " + taskCount + " tasks.");
     }
 }

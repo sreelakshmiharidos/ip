@@ -36,76 +36,79 @@ public class TaskList {
     }
 
     /**
-     * Prints the list of tasks.
+     * Returns a formatted string of the task list.
      *
-     * @param ui The Ui object for user interaction.
+     * @param ui The Ui object for formatting messages.
+     * @return A formatted string representation of the task list.
      */
-    public void printTasks(Ui ui) {
+    public String getTaskListString(Ui ui) {
         if (tasks.isEmpty()) {
-            ui.showMessage(" Yay! There are no tasks as of now!");
-        } else {
-            ui.showLine();
-            System.out.println(" Here are the tasks in your list:");
-            for (int i = 0; i < tasks.size(); i++) {
-                System.out.println(" " + (i + 1) + ". " + tasks.get(i));
-            }
-            ui.showLine();
+            return ui.showMessage("Yay! There are no tasks as of now!");
         }
+        StringBuilder response = new StringBuilder(ui.showMessage("Here are the tasks in your list:\n"));
+        for (int i = 0; i < tasks.size(); i++) {
+            response.append("  ").append(i + 1).append(". ").append(tasks.get(i)).append("\n");
+        }
+        return response.toString();
     }
 
     /**
-     * Lists tasks that occur on a specified date.
+     * Returns tasks that occur on a specified date.
      *
      * @param input The user input containing the date in yyyy-MM-dd format.
-     * @param ui The Ui object for user interaction.
+     * @param ui    The Ui object for formatting messages.
+     * @return A formatted string of tasks occurring on the given date.
      * @throws GiluException If the date format is invalid.
      */
-    public void listTasksOnDate(String input, Ui ui) throws GiluException {
+    public String listTasksOnDate(String input, Ui ui) throws GiluException {
         try {
             String[] parts = input.split(" ");
             LocalDate date = LocalDate.parse(parts[1]);
 
-            ui.showLine();
-            System.out.println(" Here are the tasks on " + date.format(DateTimeFormatter.ofPattern("MMM dd yyyy")) + ":");
+            StringBuilder response = new StringBuilder(ui.showMessage("Here are the tasks on " +
+                    date.format(DateTimeFormatter.ofPattern("MMM dd yyyy")) + ":\n"));
 
             boolean hasTasks = false;
             for (Task task : tasks) {
                 if (task instanceof Deadline && ((Deadline) task).getBy().toLocalDate().equals(date)) {
-                    System.out.println("   " + task);
+                    response.append("   ").append(task).append("\n");
                     hasTasks = true;
                 } else if (task instanceof Event) {
                     Event event = (Event) task;
                     if (!date.isBefore(event.getFrom().toLocalDate()) && !date.isAfter(event.getTo().toLocalDate())) {
-                        System.out.println("   " + task);
+                        response.append("   ").append(task).append("\n");
                         hasTasks = true;
                     }
                 }
             }
 
             if (!hasTasks) {
-                System.out.println("   No tasks found for this date.");
+                return ui.showMessage("No tasks found for this date.");
             }
-            ui.showLine();
+            return response.toString();
         } catch (Exception e) {
             throw new GiluException("Invalid date format. Use yyyy-MM-dd.");
         }
     }
 
     /**
-     * Adds a new todo task.
+     * Adds a new todo task and returns the confirmation message.
      *
      * @param description The task description.
-     * @param ui The Ui object.
-     * @param storage The Storage object.
+     * @param ui          The Ui object.
+     * @param storage     The Storage object.
+     * @return The confirmation message.
      * @throws GiluException If the description is empty.
      */
-    public void addTodo(String description, Ui ui, Storage storage) throws GiluException {
+    public String addTodo(String description, Ui ui, Storage storage) throws GiluException {
         if (description.isEmpty()) {
-            throw new GiluException("Oops! I need some details for your ToDo. What should I remind you about?");
+            throw new GiluException("Oops! I need some details for your ToDo.");
         }
-
         try {
-            addTask(new Todo(description), ui, storage);
+            Task task = new Todo(description);
+            tasks.add(task);
+            storage.saveTasks(tasks);
+            return ui.printAddedTask(task, tasks.size());
         } catch (IOException e) {
             throw new GiluException("Error saving task: " + e.getMessage());
         }
@@ -113,196 +116,109 @@ public class TaskList {
 
     /**
      * Adds a new deadline task.
-     *
-     * @param input The task description and deadline.
-     * @param ui The Ui object.
-     * @param storage The Storage object.
-     * @throws GiluException If the input format is incorrect.
      */
-    public void addDeadline(String input, Ui ui, Storage storage) throws GiluException {
+    public String addDeadline(String input, Ui ui, Storage storage) throws GiluException {
         String[] parts = input.split(" /by ", 2);
         if (parts.length < 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
-            throw new GiluException("Whoops! Your deadline is missing something. Try: deadline <task> /by <yyyy-MM-dd HHmm>.");
+            throw new GiluException("Your deadline is missing something. Try: deadline <task> /by <yyyy-MM-dd HHmm>.");
         }
 
         try {
             LocalDateTime by = LocalDateTime.parse(parts[1].trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
-            addTask(new Deadline(parts[0].trim(), by), ui, storage);
+            Task task = new Deadline(parts[0].trim(), by);
+            tasks.add(task);
+            storage.saveTasks(tasks);
+            return ui.printAddedTask(task, tasks.size());
         } catch (Exception e) {
-            throw new GiluException("Invalid date format! Use: yyyy-MM-dd HHmm (e.g., 2023-12-15 1800)");
+            throw new GiluException("Invalid date format! Use: yyyy-MM-dd HHmm.");
         }
     }
 
     /**
      * Adds a new event task.
-     *
-     * @param input The task description, start time, and end time.
-     * @param ui The Ui object.
-     * @param storage The Storage object.
-     * @throws GiluException If the input format is incorrect.
      */
-    public void addEvent(String input, Ui ui, Storage storage) throws GiluException {
+    public String addEvent(String input, Ui ui, Storage storage) throws GiluException {
         String[] parts = input.split(" /from ", 2);
         if (parts.length < 2) {
             throw new GiluException("Your event needs details! Use: event <task> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>");
         }
         String[] timeParts = parts[1].split(" /to ", 2);
         if (timeParts.length < 2) {
-            throw new GiluException("Oops! Your event needs both a start and end time. Try: event <task> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>");
+            throw new GiluException("Your event needs both a start and end time.");
         }
 
         try {
             LocalDateTime from = LocalDateTime.parse(timeParts[0].trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
             LocalDateTime to = LocalDateTime.parse(timeParts[1].trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
-            addTask(new Event(parts[0].trim(), from, to), ui, storage);
+            Task task = new Event(parts[0].trim(), from, to);
+            tasks.add(task);
+            storage.saveTasks(tasks);
+            return ui.printAddedTask(task, tasks.size());
         } catch (Exception e) {
-            throw new GiluException("Invalid date format! Use: yyyy-MM-dd HHmm (e.g., 2023-12-10 1400)");
+            throw new GiluException("Invalid date format! Use: yyyy-MM-dd HHmm.");
         }
     }
 
     /**
      * Marks a task as done.
-     *
-     * @param input The user input specifying the task to mark.
-     * @param ui The Ui object.
-     * @param storage The Storage object.
-     * @throws GiluException If the task number is invalid.
      */
-    public void markTask(String input, Ui ui, Storage storage) throws GiluException {
+    public String markTask(String input, Ui ui, Storage storage) throws GiluException {
         int taskIndex = getTaskIndex(input);
         tasks.get(taskIndex).markAsDone();
-        ui.showMessage(" Cool! I've marked this task as done:\n   " + tasks.get(taskIndex));
         saveTasks(storage);
+        return ui.showMessage("Cool! I've marked this task as done:\n   " + tasks.get(taskIndex));
     }
 
     /**
-     * Unmarks a task as not done.
-     *
-     * @param input   The user input containing the task number.
-     * @param ui      The UI instance for displaying messages.
-     * @param storage The Storage instance for saving the updated task list.
-     * @throws GiluException If the task number is invalid.
+     * Unmarks a task.
      */
-    public void unmarkTask(String input, Ui ui, Storage storage) throws GiluException {
-        try {
-            int index = Integer.parseInt(input.split(" ")[1]) - 1;
-            if (index < 0 || index >= tasks.size()) {
-                throw new GiluException("Hmm, I can’t find that task. Are you sure it’s on the list?");
-            }
-
-            Task task = tasks.get(index);
-            task.markAsNotDone();
-
-            // Show success message in one call
-            ui.showMessage(" No problem! I've marked this task as not done yet:\n   " + task);
-
-            // Save updated task list
-            storage.saveTasks(tasks);
-        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            throw new GiluException("Use: unmark <task_number>. Let’s try again!");
-        } catch (IOException e) {
-            throw new GiluException("Error saving task list after unmarking: " + e.getMessage());
-        }
+    public String unmarkTask(String input, Ui ui, Storage storage) throws GiluException {
+        int taskIndex = getTaskIndex(input);
+        tasks.get(taskIndex).markAsNotDone();
+        saveTasks(storage);
+        return ui.showMessage("No problem! I've marked this task as not done:\n   " + tasks.get(taskIndex));
     }
 
     /**
-     * Deletes a task from the list.
-     *
-     * @param input The user input specifying the task to delete.
-     * @param ui The Ui object.
-     * @param storage The Storage object.
-     * @throws GiluException If the task number is invalid.
+     * Deletes a task.
      */
-    public void deleteTask(String input, Ui ui, Storage storage) throws GiluException {
+    public String deleteTask(String input, Ui ui, Storage storage) throws GiluException {
         int taskIndex = getTaskIndex(input);
         Task removedTask = tasks.remove(taskIndex);
-
-        // Show removal message along with remaining tasks count
-        ui.showMessage(" Noted. I've removed this task:\n   " + removedTask +
-                "\n Now you have " + tasks.size() + " tasks in the list.");
-
         saveTasks(storage);
+        return ui.showMessage("Noted. I've removed this task:\n   " + removedTask +
+                "\nNow you have " + tasks.size() + " tasks in the list.");
     }
 
     /**
-     * Saves tasks to storage.
-     *
-     * @param storage The Storage object handling file persistence.
+     * Finds tasks by keyword.
      */
-    private void saveTasks(Storage storage) {
-        try {
-            storage.saveTasks(tasks);
-        } catch (Exception e) {
-            System.out.println("Error saving tasks: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Retrieves the task index from the user input.
-     *
-     * @param input The user command containing the task number.
-     * @return The index of the task in the list.
-     * @throws GiluException If the input is invalid.
-     */
-    private int getTaskIndex(String input) throws GiluException {
-        try {
-            int taskIndex = Integer.parseInt(input.split(" ")[1]) - 1;
-            if (taskIndex < 0 || taskIndex >= tasks.size()) {
-                throw new GiluException("Hmm, I can’t find that task. Are you sure it’s on the list?");
-            }
-            return taskIndex;
-        } catch (Exception e) {
-            throw new GiluException("Use: <command> <task_number>. Let’s try again!");
-        }
-    }
-
-    /**
-     * Adds a task to the task list, displays a confirmation message,
-     * and saves the updated list to storage.
-     *
-     * @param task    The task to be added.
-     * @param ui      The user interface to display messages.
-     * @param storage The storage handler for saving tasks.
-     * @throws IOException If an error occurs while saving the task list.
-     */
-    public void addTask(Task task, Ui ui, Storage storage) throws IOException {
-        tasks.add(task);
-        ui.printAddedTask(task, tasks.size());
-        storage.saveTasks(tasks);
-    }
-
-    /**
-     * Finds tasks that contain a specific keyword in their description.
-     *
-     * @param keyword The keyword to search for.
-     * @param ui      The Ui object for displaying results.
-     */
-    public void findTasks(String keyword, Ui ui) {
+    public String findTasks(String keyword, Ui ui) {
         List<Task> matchingTasks = new ArrayList<>();
-
         for (Task task : tasks) {
             if (task.getDescription().contains(keyword)) {
                 matchingTasks.add(task);
             }
         }
-
         if (matchingTasks.isEmpty()) {
-            ui.showMessage(" No matching tasks found.");
-        } else {
-            ui.showMessage(" Here are the matching tasks in your list:");
-            for (int i = 0; i < matchingTasks.size(); i++) {
-                System.out.println(" " + (i + 1) + ". " + matchingTasks.get(i));
-            }
-            ui.showLine();
+            return ui.showMessage("No matching tasks found.");
+        }
+        StringBuilder response = new StringBuilder(ui.showMessage("Here are the matching tasks:\n"));
+        for (int i = 0; i < matchingTasks.size(); i++) {
+            response.append("  ").append(i + 1).append(". ").append(matchingTasks.get(i)).append("\n");
+        }
+        return response.toString();
+    }
+
+    private void saveTasks(Storage storage) {
+        try {
+            storage.saveTasks(tasks);
+        } catch (IOException e) {
+            System.out.println("Error saving tasks: " + e.getMessage());
         }
     }
 
-    /**
-     * Retrieves the list of tasks.
-     *
-     * @return The list of tasks managed by this TaskList.
-     */
-    public List<Task> getTasks() {
-        return tasks;
+    private int getTaskIndex(String input) throws GiluException {
+        return Integer.parseInt(input.split(" ")[1]) - 1;
     }
 }

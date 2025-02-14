@@ -1,10 +1,7 @@
 package gilu;
 
 import gilu.exception.GiluException;
-
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Scanner;
 
 /**
  * Gilu is a chatbot that helps manage tasks.
@@ -39,41 +36,13 @@ public class Gilu {
     }
 
     /**
-     * Runs the chatbot, handling user input and executing commands.
+     * Generates a response for the user's chat message.
      */
-    public void run() {
-        ui.showWelcomeMessage();
-        Scanner scanner = new Scanner(System.in);
-        boolean isRunning = true;
-
-        while (isRunning) {
-            String input = scanner.nextLine().trim();
-            try {
-                isRunning = parser.executeCommand(input, tasks, ui, storage);
-            } catch (GiluException e) {
-                ui.showMessage(e.getMessage());
-            }
+    public String getResponse(String input) {
+        try {
+            return parser.executeCommand(input, tasks, ui, storage);  // Now returns a String
+        } catch (GiluException e) {
+            return e.getMessage();
         }
-        scanner.close();
-    }
-
-    public static void main(String[] args) {
-        String storagePath = (args.length > 0) ? args[0] : DEFAULT_STORAGE_PATH;
-        clearTestFileIfNeeded(args, storagePath);
-        runGilu(storagePath);
-    }
-
-    private static void clearTestFileIfNeeded(String[] args, String storagePath) {
-        if (args.length > 0) {
-            try {
-                new FileWriter(storagePath, false).close(); // Truncate test file
-            } catch (IOException e) {
-                System.out.println("Error clearing test file: " + e.getMessage());
-            }
-        }
-    }
-
-    private static void runGilu(String storagePath) {
-        new Gilu(storagePath).run();
     }
 }
