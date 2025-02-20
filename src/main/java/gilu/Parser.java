@@ -33,6 +33,9 @@ public class Parser {
             case LIST:
                 return tasks.getTaskListString(ui);
 
+            case SORT:
+                return tasks.getSortedTaskListString(ui);
+
             case LIST_DATE:
                 return tasks.listTasksOnDate(commandArgs, ui);
 

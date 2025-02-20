@@ -11,7 +11,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 /**
  * Manages the list of tasks.
@@ -35,6 +39,57 @@ public class TaskList {
     public TaskList(List<Task> tasks) {
         assert tasks != null : "Provided task list should not be null";
         this.tasks = tasks;
+    }
+
+    /**
+     * Returns a formatted string of the sorted task list.
+     *
+     * @param ui The Ui object for formatting messages.
+     * @return A formatted string representation of the sorted task list.
+     */
+    public String getSortedTaskListString(Ui ui) {
+        List<Event> sortedEvents = tasks.stream()
+                .filter(task -> task instanceof Event)
+                .map(task -> (Event) task)
+                .sorted(Comparator.comparing(Event::getFrom))
+                .collect(Collectors.toList());
+
+        List<Deadline> sortedDeadlines = tasks.stream()
+                .filter(task -> task instanceof Deadline)
+                .map(task -> (Deadline) task)
+                .sorted(Comparator.comparing(Deadline::getBy))
+                .collect(Collectors.toList());
+
+        List<Todo> todos = tasks.stream()
+                .filter(task -> task instanceof Todo)
+                .map(task -> (Todo) task)
+                .collect(Collectors.toList());
+
+        StringBuilder response = new StringBuilder();
+        response.append(ui.showMessage("Here is your sorted task list:\n"));
+
+        if (!sortedEvents.isEmpty()) {
+            response.append("\n**Events:**\n");
+            for (int i = 0; i < sortedEvents.size(); i++) {
+                response.append("  ").append(i + 1).append(". ").append(sortedEvents.get(i)).append("\n");
+            }
+        }
+
+        if (!sortedDeadlines.isEmpty()) {
+            response.append("\n**Deadlines:**\n");
+            for (int i = 0; i < sortedDeadlines.size(); i++) {
+                response.append("  ").append(i + 1).append(". ").append(sortedDeadlines.get(i)).append("\n");
+            }
+        }
+
+        if (!todos.isEmpty()) {
+            response.append("\n**Todos:**\n");
+            for (int i = 0; i < todos.size(); i++) {
+                response.append("  ").append(i + 1).append(". ").append(todos.get(i)).append("\n");
+            }
+        }
+
+        return response.toString();
     }
 
     /**
