@@ -13,12 +13,15 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 
-    private Gilu gilu = new Gilu("./data/gilu.txt"); // Ensure storage path is passed
+    private static final String STORAGE_PATH = "./data/gilu.txt";
+    private static final String FXML_PATH = "/view/MainWindow.fxml";
+
+    private final Gilu gilu = new Gilu(STORAGE_PATH); // Ensure storage path is passed
 
     @Override
     public void start(Stage stage) {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/view/MainWindow.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(FXML_PATH));
             AnchorPane root = fxmlLoader.load();
             Scene scene = new Scene(root);
             stage.setScene(scene);
@@ -30,6 +33,7 @@ public class Main extends Application {
             stage.setTitle("Gilu Chatbot");
             stage.show();
         } catch (IOException e) {
+            System.err.println("Error loading FXML: " + e.getMessage()); // Provide meaningful error feedback
             e.printStackTrace();
         }
     }

@@ -16,31 +16,47 @@ public class Gilu {
     private final Parser parser;
 
     /**
+     * Constructs a Gilu chatbot instance with the default storage path.
+     */
+    public Gilu() {
+        this(DEFAULT_STORAGE_PATH);
+    }
+
+    /**
      * Constructs a Gilu chatbot instance with the given storage path.
      *
      * @param filePath The file path to store tasks.
      */
-    public Gilu(String filePath) {
-        ui = new Ui();
-        storage = new Storage(filePath);
-        parser = new Parser();
+    public Gilu(final String filePath) {
+        this.ui = new Ui();
+        this.storage = new Storage(filePath);
+        this.parser = new Parser();
+        this.tasks = loadTasks();
+    }
 
-        TaskList loadedTasks;
+    /**
+     * Loads tasks from storage, handling potential I/O errors.
+     *
+     * @return The initialized TaskList.
+     */
+    private TaskList loadTasks() {
         try {
-            loadedTasks = new TaskList(storage.loadTasks());
+            return new TaskList(storage.loadTasks());
         } catch (IOException e) {
             ui.showMessage("Error loading tasks: " + e.getMessage());
-            loadedTasks = new TaskList();
+            return new TaskList(); // Return an empty list if loading fails
         }
-        tasks = loadedTasks;
     }
 
     /**
      * Generates a response for the user's chat message.
+     *
+     * @param input The user input message.
+     * @return The chatbot's response.
      */
-    public String getResponse(String input) {
+    public String getResponse(final String input) {
         try {
-            return parser.executeCommand(input, tasks, ui, storage);  // Now returns a String
+            return parser.executeCommand(input, tasks, ui, storage);
         } catch (GiluException e) {
             return e.getMessage();
         }

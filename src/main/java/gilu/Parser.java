@@ -7,6 +7,12 @@ import gilu.exception.GiluException;
  * Parses user input and executes the corresponding commands.
  */
 public class Parser {
+    private static final String ERROR_UNKNOWN_COMMAND = "Uh-oh! I didn’t get that. "
+            + "Try 'list', 'todo', 'deadline', 'event', 'mark', 'unmark', 'find' or 'delete'.";
+
+    private static final String ERROR_MISSING_KEYWORD = "Oops! Please specify a keyword to search.";
+
+    private static final String GOODBYE_MESSAGE = "Bye for now! But I hope to see you again soon!";
 
     /**
      * Executes a command based on user input and returns a response string.
@@ -18,36 +24,47 @@ public class Parser {
      * @return The response to be displayed in the GUI.
      * @throws GiluException If the command is invalid or an error occurs.
      */
-    public String executeCommand(String input, TaskList tasks, Ui ui, Storage storage) throws GiluException {
+    public String executeCommand(final String input, final TaskList tasks, final Ui ui, final Storage storage)
+            throws GiluException {
         Command command = Command.fromInput(input);
+        String commandArgs = input.replaceFirst("^\\S+\\s*", ""); // Removes command name dynamically
 
         switch (command) {
             case LIST:
                 return tasks.getTaskListString(ui);
+
             case LIST_DATE:
-                return tasks.listTasksOnDate(input, ui);
+                return tasks.listTasksOnDate(commandArgs, ui);
+
             case TODO:
-                return tasks.addTodo(input.substring(4).trim(), ui, storage);
+                return tasks.addTodo(commandArgs, ui, storage);
+
             case DEADLINE:
-                return tasks.addDeadline(input.substring(8).trim(), ui, storage);
+                return tasks.addDeadline(commandArgs, ui, storage);
+
             case EVENT:
-                return tasks.addEvent(input.substring(5).trim(), ui, storage);
+                return tasks.addEvent(commandArgs, ui, storage);
+
             case MARK:
-                return tasks.markTask(input, ui, storage);
+                return tasks.markTask(commandArgs, ui, storage);
+
             case UNMARK:
-                return tasks.unmarkTask(input, ui, storage);
+                return tasks.unmarkTask(commandArgs, ui, storage);
+
             case DELETE:
-                return tasks.deleteTask(input, ui, storage);
+                return tasks.deleteTask(commandArgs, ui, storage);
+
             case FIND:
-                if (input.length() <= 5) {
-                    throw new GiluException("Oops! Please specify a keyword to search.");
+                if (commandArgs.isEmpty()) {
+                    throw new GiluException(ERROR_MISSING_KEYWORD);
                 }
-                return tasks.findTasks(input.substring(5).trim(), ui);
+                return tasks.findTasks(commandArgs, ui);
+
             case EXIT:
-                return ui.showMessage("Bye for now! But I hope to see you again soon!");
+                return ui.showMessage(GOODBYE_MESSAGE);
+
             default:
-                return ui.showMessage("Uh-oh! I didn’t get that. Try 'list', " +
-                        "'todo', 'deadline', 'event', 'mark', 'unmark', 'find' or 'delete'.");
+                return ui.showMessage(ERROR_UNKNOWN_COMMAND);
         }
     }
 }
