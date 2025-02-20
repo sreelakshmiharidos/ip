@@ -30,6 +30,10 @@ public class MainWindow extends AnchorPane {
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        // Show welcome message when the GUI loads
+        dialogContainer.getChildren().add(
+                DialogBox.getGiluDialog("Heyoo! I'm Gilu, your trusted friend!" +
+                        "\nHow can I make your day better?", giluImage));
     }
 
     /**

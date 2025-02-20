@@ -24,6 +24,7 @@ public class TaskList {
      */
     public TaskList() {
         this.tasks = new ArrayList<>();
+        assert tasks != null : "Task list should not be null after initialization";
     }
 
     /**
@@ -32,6 +33,7 @@ public class TaskList {
      * @param tasks The list of tasks.
      */
     public TaskList(List<Task> tasks) {
+        assert tasks != null : "Provided task list should not be null";
         this.tasks = tasks;
     }
 
@@ -42,6 +44,7 @@ public class TaskList {
      * @return A formatted string representation of the task list.
      */
     public String getTaskListString(Ui ui) {
+        assert ui != null : "UI object should not be null";
         if (tasks.isEmpty()) {
             return ui.showMessage("Yay! There are no tasks as of now!");
         }
@@ -61,6 +64,9 @@ public class TaskList {
      * @throws GiluException If the date format is invalid.
      */
     public String listTasksOnDate(String input, Ui ui) throws GiluException {
+        assert input != null && !input.isEmpty() : "Input should not be null or empty";
+        assert ui != null : "UI object should not be null";
+
         try {
             String[] parts = input.split(" ");
             LocalDate date = LocalDate.parse(parts[1]);
@@ -101,6 +107,10 @@ public class TaskList {
      * @throws GiluException If the description is empty.
      */
     public String addTodo(String description, Ui ui, Storage storage) throws GiluException {
+        assert description != null : "Task description should not be null";
+        assert ui != null : "UI object should not be null";
+        assert storage != null : "Storage object should not be null";
+
         if (description.isEmpty()) {
             throw new GiluException("Oops! I need some details for your ToDo.");
         }
@@ -118,6 +128,10 @@ public class TaskList {
      * Adds a new deadline task.
      */
     public String addDeadline(String input, Ui ui, Storage storage) throws GiluException {
+        assert input != null && !input.isEmpty() : "Input should not be null or empty";
+        assert ui != null : "UI object should not be null";
+        assert storage != null : "Storage object should not be null";
+
         String[] parts = input.split(" /by ", 2);
         if (parts.length < 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
             throw new GiluException("Your deadline is missing something. Try: deadline <task> /by <yyyy-MM-dd HHmm>.");
@@ -138,6 +152,10 @@ public class TaskList {
      * Adds a new event task.
      */
     public String addEvent(String input, Ui ui, Storage storage) throws GiluException {
+        assert input != null && !input.isEmpty() : "Input should not be null or empty";
+        assert ui != null : "UI object should not be null";
+        assert storage != null : "Storage object should not be null";
+
         String[] parts = input.split(" /from ", 2);
         if (parts.length < 2) {
             throw new GiluException("Your event needs details! Use: event <task> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>");
@@ -161,9 +179,21 @@ public class TaskList {
 
     /**
      * Marks a task as done.
+     *
+     * @param input   The user input specifying the task to mark.
+     * @param ui      The Ui object.
+     * @param storage The Storage object.
+     * @return The confirmation message.
+     * @throws GiluException If the task number is invalid.
      */
     public String markTask(String input, Ui ui, Storage storage) throws GiluException {
+        assert input != null && !input.isEmpty() : "Input should not be null or empty";
+        assert ui != null : "UI object should not be null";
+        assert storage != null : "Storage object should not be null";
+
         int taskIndex = getTaskIndex(input);
+        assert taskIndex >= 0 && taskIndex < tasks.size() : "Task index should be within bounds";
+
         tasks.get(taskIndex).markAsDone();
         saveTasks(storage);
         return ui.showMessage("Cool! I've marked this task as done:\n   " + tasks.get(taskIndex));
@@ -171,9 +201,21 @@ public class TaskList {
 
     /**
      * Unmarks a task.
+     *
+     * @param input   The user input specifying the task to unmark.
+     * @param ui      The Ui object.
+     * @param storage The Storage object.
+     * @return The confirmation message.
+     * @throws GiluException If the task number is invalid.
      */
     public String unmarkTask(String input, Ui ui, Storage storage) throws GiluException {
+        assert input != null && !input.isEmpty() : "Input should not be null or empty";
+        assert ui != null : "UI object should not be null";
+        assert storage != null : "Storage object should not be null";
+
         int taskIndex = getTaskIndex(input);
+        assert taskIndex >= 0 && taskIndex < tasks.size() : "Task index should be within bounds";
+
         tasks.get(taskIndex).markAsNotDone();
         saveTasks(storage);
         return ui.showMessage("No problem! I've marked this task as not done:\n   " + tasks.get(taskIndex));
@@ -181,9 +223,21 @@ public class TaskList {
 
     /**
      * Deletes a task.
+     *
+     * @param input   The user input specifying the task to delete.
+     * @param ui      The Ui object.
+     * @param storage The Storage object.
+     * @return The confirmation message.
+     * @throws GiluException If the task number is invalid.
      */
     public String deleteTask(String input, Ui ui, Storage storage) throws GiluException {
+        assert input != null && !input.isEmpty() : "Input should not be null or empty";
+        assert ui != null : "UI object should not be null";
+        assert storage != null : "Storage object should not be null";
+
         int taskIndex = getTaskIndex(input);
+        assert taskIndex >= 0 && taskIndex < tasks.size() : "Task index should be within bounds";
+
         Task removedTask = tasks.remove(taskIndex);
         saveTasks(storage);
         return ui.showMessage("Noted. I've removed this task:\n   " + removedTask +
@@ -192,17 +246,26 @@ public class TaskList {
 
     /**
      * Finds tasks by keyword.
+     *
+     * @param keyword The keyword to search for.
+     * @param ui      The Ui object for displaying results.
+     * @return The formatted string of matching tasks.
      */
     public String findTasks(String keyword, Ui ui) {
+        assert keyword != null && !keyword.isEmpty() : "Search keyword should not be null or empty";
+        assert ui != null : "UI object should not be null";
+
         List<Task> matchingTasks = new ArrayList<>();
         for (Task task : tasks) {
             if (task.getDescription().contains(keyword)) {
                 matchingTasks.add(task);
             }
         }
+
         if (matchingTasks.isEmpty()) {
             return ui.showMessage("No matching tasks found.");
         }
+
         StringBuilder response = new StringBuilder(ui.showMessage("Here are the matching tasks:\n"));
         for (int i = 0; i < matchingTasks.size(); i++) {
             response.append("  ").append(i + 1).append(". ").append(matchingTasks.get(i)).append("\n");
@@ -211,6 +274,8 @@ public class TaskList {
     }
 
     private void saveTasks(Storage storage) {
+        assert storage != null : "Storage object should not be null";
+
         try {
             storage.saveTasks(tasks);
         } catch (IOException e) {
@@ -219,6 +284,8 @@ public class TaskList {
     }
 
     private int getTaskIndex(String input) throws GiluException {
+        assert input != null && !input.isEmpty() : "Input should not be null or empty";
+
         return Integer.parseInt(input.split(" ")[1]) - 1;
     }
 }
