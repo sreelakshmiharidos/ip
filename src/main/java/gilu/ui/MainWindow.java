@@ -13,6 +13,9 @@ import javafx.scene.layout.VBox;
  * Controller for the main GUI.
  */
 public class MainWindow extends AnchorPane {
+    private static final String WELCOME_MESSAGE = "Heyoo! I'm Gilu, your trusted friend!"
+            + "\nHow can I make your day better?";
+
     @FXML
     private ScrollPane scrollPane;
     @FXML
@@ -24,16 +27,16 @@ public class MainWindow extends AnchorPane {
 
     private Gilu gilu;
 
-    private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
-    private Image giluImage = new Image(this.getClass().getResourceAsStream("/images/DaGilu.png"));
+    private final Image userImage = new Image(getClass().getResourceAsStream("/images/DaUser.png"));
+    private final Image giluImage = new Image(getClass().getResourceAsStream("/images/DaGilu.png"));
 
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+
         // Show welcome message when the GUI loads
         dialogContainer.getChildren().add(
-                DialogBox.getGiluDialog("Heyoo! I'm Gilu, your trusted friend!" +
-                        "\nHow can I make your day better?", giluImage));
+                DialogBox.getGiluDialog(WELCOME_MESSAGE, giluImage));
     }
 
     /**
@@ -48,11 +51,9 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     private void handleUserInput() {
-        String input = userInput.getText();
-        String response = gilu.getResponse(input);
         dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input, userImage),
-                DialogBox.getGiluDialog(response, giluImage)
+                DialogBox.getUserDialog(userInput.getText(), userImage),
+                DialogBox.getGiluDialog(gilu.getResponse(userInput.getText()), giluImage)
         );
         userInput.clear();
     }
