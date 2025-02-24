@@ -45,12 +45,12 @@ test {
 }
 
 application {
-    mainClass.set("gilu.Launcher")
+    mainClass.set("gilu.Mainls" +
+            "")
 }
 
 shadowJar {
-    archiveBaseName = "gilu"
-    archiveClassifier = null
+    archiveFileName = 'gilu.jar'
 }
 
 run{
