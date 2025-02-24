@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -153,20 +154,24 @@ public class TaskList {
     /**
      * Adds a new todo task and returns the confirmation message.
      *
-     * @param description The task description.
-     * @param ui          The Ui object.
-     * @param storage     The Storage object.
+     * @param input The full user input string, including the command keyword.
+     * @param ui    The Ui object.
+     * @param storage The Storage object.
      * @return The confirmation message.
      * @throws GiluException If the description is empty.
      */
-    public String addTodo(String description, Ui ui, Storage storage) throws GiluException {
-        assert description != null : "Task description should not be null";
+    public String addTodo(String input, Ui ui, Storage storage) throws GiluException {
+        assert input != null : "Input should not be null";
         assert ui != null : "UI object should not be null";
         assert storage != null : "Storage object should not be null";
 
-        if (description.isEmpty()) {
+        // Remove "todo" from the input and trim extra spaces
+        String description = input.replaceFirst("(?i)^todo\\s*", "").trim();
+
+        if (description.isEmpty()) { // Ensure that we do not allow empty descriptions
             throw new GiluException("Oops! I need some details for your ToDo.");
         }
+
         try {
             Task task = new Todo(description);
             tasks.add(task);
@@ -374,5 +379,23 @@ public class TaskList {
         }
 
         return taskIndex;
+    }
+
+    /**
+     * Returns the number of tasks in the task list.
+     *
+     * @return The number of tasks.
+     */
+    public int getTaskCount() {
+        return tasks.size();
+    }
+
+    /**
+     * Returns an unmodifiable view of the tasks list.
+     *
+     * @return A list of tasks.
+     */
+    public List<Task> getTasks() {
+        return Collections.unmodifiableList(tasks);
     }
 }

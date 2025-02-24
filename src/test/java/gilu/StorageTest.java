@@ -1,9 +1,9 @@
 package gilu;
 
-import gilu.storage.Storage;
-import gilu.task.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +12,14 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import gilu.storage.Storage;
+import gilu.task.Deadline;
+import gilu.task.Event;
+import gilu.task.Task;
+import gilu.task.Todo;
 
 /**
  * Tests the functionality of the Storage class, particularly the loadTasks method.

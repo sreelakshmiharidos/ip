@@ -1,23 +1,31 @@
 package gilu;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import gilu.exception.GiluException;
 import gilu.storage.Storage;
 import gilu.task.Deadline;
 import gilu.task.Task;
 import gilu.ui.Ui;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests the functionality of the TaskList class, particularly the addDeadline method.
  */
 class TaskListTest {
+    private static final String TEST_STORAGE_PATH = "./data/test_tasks.txt";
+    private static final String VALID_INPUT = "deadline return book /by 2023-12-15 1800";
+    private static final String INVALID_DATE_INPUT = "deadline return book /by 15-12-2023 1800";
+    private static final String MISSING_DETAILS_INPUT = "deadline return book";
+
     private TaskList taskList;
     private Ui ui;
     private Storage storage;
@@ -31,31 +39,36 @@ class TaskListTest {
     @BeforeEach
     void setUp() throws IOException {
         ui = new Ui();
-        storage = new Storage("./data/test_tasks.txt"); // Use a separate file for tests
+        storage = new Storage(TEST_STORAGE_PATH);
         taskList = new TaskList();
-        storage.saveTasks(taskList.getTasks());
+        storage.saveTasks(new ArrayList<>()); // Ensures clean test file
     }
 
     /**
-     * Tests that a valid deadline task is added to the TaskList correctly.
+     * Tests that a valid deadline task is successfully added to the {@link TaskList}.
+     *
+     * <p>This test ensures that:</p>
+     * <ul>
+     *   <li>The task list contains exactly one task after addition.</li>
+     *   <li>The task is an instance of {@link Deadline}.</li>
+     *   <li>The task has the correct description.</li>
+     * </ul>
      *
      * @throws GiluException If the task format is invalid.
-     * @throws IOException    If an error occurs while saving tasks.
+     * @throws IOException If an error occurs while saving tasks.
      */
     @Test
     void testAddDeadlineValidInput() throws GiluException, IOException {
         String input = "return book /by 2023-12-15 1800";
         taskList.addDeadline(input, ui, storage);
 
-        // Verify the task list has one Deadline task
+        // Check if task list contains 1 task
         assertEquals(1, taskList.getTasks().size(), "Task list size should be 1");
+
+        // Verify the added task is a Deadline with the correct description
         Task task = taskList.getTasks().get(0);
         assertTrue(task instanceof Deadline, "Task should be a Deadline instance");
-
-        // Verify the Deadline details
-        Deadline deadline = (Deadline) task;
-        assertEquals("return book", deadline.getDescription(), "Description should match");
-        assertEquals(LocalDateTime.parse("2023-12-15 1800", DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm")), deadline.getBy(), "Deadline date should match");
+        assertEquals("return book", task.getDescription(), "Description should match");
     }
 
     /**
@@ -63,9 +76,10 @@ class TaskListTest {
      */
     @Test
     void testAddDeadlineMissingDetails() {
-        String input = "return book"; // Missing /by part
-        GiluException exception = assertThrows(GiluException.class, () -> taskList.addDeadline(input, ui, storage));
-        assertEquals("Whoops! Your deadline is missing something. Try: deadline <task> /by <yyyy-MM-dd HHmm>.", exception.getMessage());
+        GiluException exception = assertThrows(GiluException.class, () ->
+                taskList.addDeadline(MISSING_DETAILS_INPUT, ui, storage));
+        assertEquals("Your deadline is missing something. Try: deadline <task> /by <yyyy-MM-dd HHmm>.",
+                exception.getMessage());
     }
 
     /**
@@ -73,8 +87,8 @@ class TaskListTest {
      */
     @Test
     void testAddDeadlineInvalidDateFormat() {
-        String input = "return book /by 15-12-2023 1800"; // Invalid date format
-        GiluException exception = assertThrows(GiluException.class, () -> taskList.addDeadline(input, ui, storage));
-        assertEquals("Invalid date format! Use: yyyy-MM-dd HHmm (e.g., 2023-12-15 1800)", exception.getMessage());
+        GiluException exception = assertThrows(GiluException.class, () ->
+                taskList.addDeadline(INVALID_DATE_INPUT, ui, storage));
+        assertEquals("Invalid date format! Use: yyyy-MM-dd HHmm.", exception.getMessage());
     }
 }

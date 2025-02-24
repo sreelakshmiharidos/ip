@@ -149,14 +149,4 @@ public class Storage {
         }
         throw new IllegalArgumentException("Unknown task type: " + task);
     }
-
-    /**
-     * Parses a date string into a LocalDateTime object.
-     *
-     * @param dateString The date string to parse.
-     * @return The parsed LocalDateTime object.
-     */
-    private LocalDateTime parseDate(String dateString) {
-        return LocalDateTime.parse(dateString, DATE_TIME_FORMATTER);
-    }
 }
