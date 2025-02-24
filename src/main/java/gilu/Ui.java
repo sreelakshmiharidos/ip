@@ -12,7 +12,7 @@ public class Ui {
     }
 
     public String showWelcomeMessage() {
-        return " Heyoo! I'm Gilu, your trusted friend!\n" +
+        return " Heyoo! I'm Gilu, your trusted task-manager!\n" +
                 " How can I make your day better?\n";
     }
 

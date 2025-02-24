@@ -13,7 +13,7 @@ import javafx.scene.layout.VBox;
  * Controller for the main GUI.
  */
 public class MainWindow extends AnchorPane {
-    private static final String WELCOME_MESSAGE = "Heyoo! I'm Gilu, your trusted friend!"
+    private static final String WELCOME_MESSAGE = "Heyoo! I'm Gilu, your trusted task-manager!"
             + "\nHow can I make your day better?";
 
     @FXML
