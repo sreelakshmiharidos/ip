@@ -18,16 +18,6 @@ public class Ui {
     }
 
     /**
-     * Returns the welcome message for the user.
-     *
-     * @return The welcome message string.
-     */
-    public String showWelcomeMessage() {
-        return " Heyoo! I'm Gilu, your trusted task-manager!\n"
-                + " How can I make your day better?\n";
-    }
-
-    /**
      * Returns a confirmation message when a task is added.
      *
      * @param task The task that was added.

@@ -65,7 +65,14 @@ public class Parser {
             return tasks.findTasks(input, ui);
 
         case EXIT:
-            return ui.showMessage(GOODBYE_MESSAGE);
+            String goodbyeMessage = ui.showMessage(GOODBYE_MESSAGE);
+            new java.util.Timer().schedule(new java.util.TimerTask() {
+                @Override
+                public void run() {
+                    System.exit(0);
+                }
+            }, 1000); // 1-second delay to allow UI updates
+            return goodbyeMessage;
 
         default:
             return ui.showMessage(ERROR_UNKNOWN_COMMAND);
