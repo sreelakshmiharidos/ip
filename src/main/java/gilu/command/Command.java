@@ -13,39 +13,39 @@ public enum Command {
      * @return The corresponding Command enum.
      */
     public static Command fromInput(String input) {
-        if (input.equalsIgnoreCase("list")) {
-            return LIST;
+        if (input == null || input.trim().isEmpty()) {
+            return UNKNOWN;
         }
-        if (input.equalsIgnoreCase("sort")) {
-            return SORT;
+
+        // Extract the first word from input (command)
+        String[] words = input.trim().split("\\s+", 2);  // Split on first space only
+        String command = words[0].toLowerCase();  // Normalize to lowercase
+
+        switch (command) {
+            case "list":
+                return LIST;
+            case "sort":
+                return SORT;
+            case "list_date":
+                return LIST_DATE;
+            case "mark":
+                return MARK;
+            case "unmark":
+                return UNMARK;
+            case "delete":
+                return DELETE;
+            case "todo":
+                return TODO;
+            case "deadline":
+                return DEADLINE;
+            case "event":
+                return EVENT;
+            case "find":
+                return FIND;
+            case "bye":
+                return EXIT;
+            default:
+                return UNKNOWN;  // Unknown commands
         }
-        if (input.matches("list \\d{4}-\\d{2}-\\d{2}")) {
-            return LIST_DATE;
-        }
-        if (input.startsWith("mark")) {
-            return MARK;
-        }
-        if (input.startsWith("unmark")) {
-            return UNMARK;
-        }
-        if (input.startsWith("delete")) {
-            return DELETE;
-        }
-        if (input.startsWith("todo")) {
-            return TODO;
-        }
-        if (input.startsWith("deadline")) {
-            return DEADLINE;
-        }
-        if (input.startsWith("event")) {
-            return EVENT;
-        }
-        if (input.startsWith("find")) {
-            return FIND;
-        }
-        if (input.equalsIgnoreCase("bye")) {
-            return EXIT;
-        }
-        return UNKNOWN;
     }
 }

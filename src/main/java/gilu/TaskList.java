@@ -69,21 +69,21 @@ public class TaskList {
         response.append(ui.showMessage("Here is your sorted task list:\n"));
 
         if (!sortedEvents.isEmpty()) {
-            response.append("\n**Events:**\n");
+            response.append("\nEvents:\n");
             for (int i = 0; i < sortedEvents.size(); i++) {
                 response.append("  ").append(i + 1).append(". ").append(sortedEvents.get(i)).append("\n");
             }
         }
 
         if (!sortedDeadlines.isEmpty()) {
-            response.append("\n**Deadlines:**\n");
+            response.append("\nDeadlines:\n");
             for (int i = 0; i < sortedDeadlines.size(); i++) {
                 response.append("  ").append(i + 1).append(". ").append(sortedDeadlines.get(i)).append("\n");
             }
         }
 
         if (!todos.isEmpty()) {
-            response.append("\n**Todos:**\n");
+            response.append("\nTodos:\n");
             for (int i = 0; i < todos.size(); i++) {
                 response.append("  ").append(i + 1).append(". ").append(todos.get(i)).append("\n");
             }
@@ -246,9 +246,7 @@ public class TaskList {
         assert ui != null : "UI object should not be null";
         assert storage != null : "Storage object should not be null";
 
-        int taskIndex = getTaskIndex(input);
-        assert taskIndex >= 0 && taskIndex < tasks.size() : "Task index should be within bounds";
-
+        int taskIndex = getValidatedTaskIndex(input);
         tasks.get(taskIndex).markAsDone();
         saveTasks(storage);
         return ui.showMessage("Cool! I've marked this task as done:\n   " + tasks.get(taskIndex));
@@ -268,9 +266,7 @@ public class TaskList {
         assert ui != null : "UI object should not be null";
         assert storage != null : "Storage object should not be null";
 
-        int taskIndex = getTaskIndex(input);
-        assert taskIndex >= 0 && taskIndex < tasks.size() : "Task index should be within bounds";
-
+        int taskIndex = getValidatedTaskIndex(input);
         tasks.get(taskIndex).markAsNotDone();
         saveTasks(storage);
         return ui.showMessage("No problem! I've marked this task as not done:\n   " + tasks.get(taskIndex));
@@ -290,9 +286,7 @@ public class TaskList {
         assert ui != null : "UI object should not be null";
         assert storage != null : "Storage object should not be null";
 
-        int taskIndex = getTaskIndex(input);
-        assert taskIndex >= 0 && taskIndex < tasks.size() : "Task index should be within bounds";
-
+        int taskIndex = getValidatedTaskIndex(input);
         Task removedTask = tasks.remove(taskIndex);
         saveTasks(storage);
         return ui.showMessage("Noted. I've removed this task:\n   " + removedTask +
@@ -300,19 +294,27 @@ public class TaskList {
     }
 
     /**
-     * Finds tasks by keyword.
+     * Finds tasks by keyword (case-insensitive and partial match).
      *
-     * @param keyword The keyword to search for.
-     * @param ui      The Ui object for displaying results.
+     * @param input The full user input containing the command and keyword.
+     * @param ui    The Ui object for displaying results.
      * @return The formatted string of matching tasks.
      */
-    public String findTasks(String keyword, Ui ui) {
-        assert keyword != null && !keyword.isEmpty() : "Search keyword should not be null or empty";
+    public String findTasks(String input, Ui ui) {
+        assert input != null && !input.isEmpty() : "Search input should not be null or empty";
         assert ui != null : "UI object should not be null";
+
+        // Extract keyword from input
+        String[] parts = input.split(" ", 2);
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            return ui.showMessage("Oops! Please specify a keyword to search.");
+        }
+
+        String keyword = parts[1].trim().toLowerCase(); // Convert to lowercase
 
         List<Task> matchingTasks = new ArrayList<>();
         for (Task task : tasks) {
-            if (task.getDescription().contains(keyword)) {
+            if (task.getDescription().toLowerCase().contains(keyword)) { // Case-insensitive match
                 matchingTasks.add(task);
             }
         }
@@ -338,9 +340,29 @@ public class TaskList {
         }
     }
 
-    private int getTaskIndex(String input) throws GiluException {
+    /**
+     * Extracts and validates the task index from user input.
+     *
+     * @param input The user input containing the command and number.
+     * @return The valid task index (0-based).
+     * @throws GiluException If input is invalid or number is out of range.
+     */
+    private int getValidatedTaskIndex(String input) throws GiluException {
         assert input != null && !input.isEmpty() : "Input should not be null or empty";
 
-        return Integer.parseInt(input.split(" ")[1]) - 1;
+        // Ensure input format: command followed by a single number
+        String[] parts = input.trim().split(" ");
+        if (parts.length != 2 || !parts[1].matches("\\d+")) {
+            throw new GiluException("Oops! Please provide a valid task number.");
+        }
+
+        int taskIndex = Integer.parseInt(parts[1]) - 1;
+
+        // Validate task index range
+        if (taskIndex < 0 || taskIndex >= tasks.size()) {
+            throw new GiluException("Hmm, I can’t find that task. Are you sure it’s on the list?");
+        }
+
+        return taskIndex;
     }
 }
