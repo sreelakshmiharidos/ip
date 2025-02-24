@@ -1,4 +1,4 @@
-package gilu;
+package gilu.storage;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

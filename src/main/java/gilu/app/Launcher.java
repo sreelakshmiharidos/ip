@@ -1,4 +1,4 @@
-package gilu;
+package gilu.app;
 
 import javafx.application.Application;
 

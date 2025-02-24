@@ -3,6 +3,8 @@ package gilu;
 import java.io.IOException;
 
 import gilu.exception.GiluException;
+import gilu.storage.Storage;
+import gilu.ui.Ui;
 
 
 /**

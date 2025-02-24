@@ -30,6 +30,15 @@ public class MainWindow extends AnchorPane {
     private final Image userImage = new Image(getClass().getResourceAsStream("/images/DaUser.png"));
     private final Image giluImage = new Image(getClass().getResourceAsStream("/images/DaGilu.png"));
 
+    /**
+     * Initializes the GUI when the application starts.
+     * <p>
+     * This method binds the vertical scroll value of the {@code scrollPane}
+     * to the height of the {@code dialogContainer}, ensuring automatic scrolling
+     * to the latest message. It also displays a welcome message from Gilu when
+     * the GUI is first loaded.
+     * </p>
+     */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());

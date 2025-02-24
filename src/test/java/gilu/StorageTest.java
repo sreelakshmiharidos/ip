@@ -1,5 +1,6 @@
 package gilu;
 
+import gilu.storage.Storage;
 import gilu.task.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

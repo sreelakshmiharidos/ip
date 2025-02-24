@@ -1,7 +1,8 @@
-package gilu;
+package gilu.app;
 
 import java.io.IOException;
 
+import gilu.Gilu;
 import gilu.ui.MainWindow;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

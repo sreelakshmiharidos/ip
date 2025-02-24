@@ -1,4 +1,4 @@
-package gilu;
+package gilu.ui;
 
 import gilu.task.Task;
 

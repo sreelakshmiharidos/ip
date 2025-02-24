@@ -50,7 +50,7 @@ test {
 }
 
 application {
-    mainClass.set("gilu.Main")
+    mainClass.set("gilu.app.Launcher")
 }
 
 shadowJar {

@@ -2,6 +2,8 @@ package gilu;
 
 import gilu.command.Command;
 import gilu.exception.GiluException;
+import gilu.storage.Storage;
+import gilu.ui.Ui;
 
 /**
  * Parses user input and executes the corresponding commands.

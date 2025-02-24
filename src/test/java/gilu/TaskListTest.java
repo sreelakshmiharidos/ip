@@ -1,8 +1,10 @@
 package gilu;
 
 import gilu.exception.GiluException;
+import gilu.storage.Storage;
 import gilu.task.Deadline;
 import gilu.task.Task;
+import gilu.ui.Ui;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
