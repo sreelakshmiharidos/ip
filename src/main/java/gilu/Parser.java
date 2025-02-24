@@ -29,44 +29,44 @@ public class Parser {
         Command command = Command.fromInput(input);
 
         switch (command) {
-            case LIST:
-                return tasks.getTaskListString(ui);
+        case LIST:
+            return tasks.getTaskListString(ui);
 
-            case SORT:
-                return tasks.getSortedTaskListString(ui);
+        case SORT:
+            return tasks.getSortedTaskListString(ui);
 
-            case LIST_DATE:
-                return tasks.listTasksOnDate(input, ui);
+        case LIST_DATE:
+            return tasks.listTasksOnDate(input, ui);
 
-            case TODO:
-                return tasks.addTodo(input, ui, storage);
+        case TODO:
+            return tasks.addTodo(input, ui, storage);
 
-            case DEADLINE:
-                return tasks.addDeadline(input, ui, storage);
+        case DEADLINE:
+            return tasks.addDeadline(input, ui, storage);
 
-            case EVENT:
-                return tasks.addEvent(input, ui, storage);
+        case EVENT:
+            return tasks.addEvent(input, ui, storage);
 
-            case MARK:
-                return tasks.markTask(input, ui, storage);
+        case MARK:
+            return tasks.markTask(input, ui, storage);
 
-            case UNMARK:
-                return tasks.unmarkTask(input, ui, storage);
+        case UNMARK:
+            return tasks.unmarkTask(input, ui, storage);
 
-            case DELETE:
-                return tasks.deleteTask(input, ui, storage);
+        case DELETE:
+            return tasks.deleteTask(input, ui, storage);
 
-            case FIND:
-                if (input.split(" ").length < 2) { // Ensure keyword exists
-                    throw new GiluException(ERROR_MISSING_KEYWORD);
-                }
-                return tasks.findTasks(input, ui);
+        case FIND:
+            if (input.split(" ").length < 2) { // Ensure keyword exists
+                throw new GiluException(ERROR_MISSING_KEYWORD);
+            }
+            return tasks.findTasks(input, ui);
 
-            case EXIT:
-                return ui.showMessage(GOODBYE_MESSAGE);
+        case EXIT:
+            return ui.showMessage(GOODBYE_MESSAGE);
 
-            default:
-                return ui.showMessage(ERROR_UNKNOWN_COMMAND);
+        default:
+            return ui.showMessage(ERROR_UNKNOWN_COMMAND);
         }
     }
 }

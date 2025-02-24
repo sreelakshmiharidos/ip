@@ -1,15 +1,21 @@
 package gilu;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
 import gilu.task.Deadline;
 import gilu.task.Event;
 import gilu.task.Task;
 import gilu.task.Todo;
 
-import java.io.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Handles saving and loading of tasks to/from the disk.
@@ -104,17 +110,17 @@ public class Storage {
 
         try {
             switch (type) {
-                case "T":
-                    return new Todo(description, isDone);
-                case "D":
-                    LocalDateTime by = LocalDateTime.parse(parts[3], DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
-                    return new Deadline(description, by, isDone);
-                case "E":
-                    LocalDateTime from = LocalDateTime.parse(parts[3], DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
-                    LocalDateTime to = LocalDateTime.parse(parts[4], DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
-                    return new Event(description, from, to, isDone);
-                default:
-                    throw new IllegalArgumentException("Unknown task type: " + type);
+            case "T":
+                return new Todo(description, isDone);
+            case "D":
+                LocalDateTime by = LocalDateTime.parse(parts[3], DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+                return new Deadline(description, by, isDone);
+            case "E":
+                LocalDateTime from = LocalDateTime.parse(parts[3], DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+                LocalDateTime to = LocalDateTime.parse(parts[4], DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+                return new Event(description, from, to, isDone);
+            default:
+                throw new IllegalArgumentException("Unknown task type: " + type);
             }
         } catch (Exception e) {
             throw new IllegalArgumentException("Error parsing task date: " + line);
@@ -133,10 +139,13 @@ public class Storage {
             return "T | " + (task.isDone() ? "1" : "0") + " | " + task.getDescription();
         } else if (task instanceof Deadline) {
             Deadline deadline = (Deadline) task;
-            return "D | " + (task.isDone() ? "1" : "0") + " | " + task.getDescription() + " | " + deadline.getBy().format(formatter);
+            return "D | " + (task.isDone() ? "1" : "0") + " | "
+                    + task.getDescription() + " | " + deadline.getBy().format(formatter);
         } else if (task instanceof Event) {
             Event event = (Event) task;
-            return "E | " + (task.isDone() ? "1" : "0") + " | " + task.getDescription() + " | " + event.getFrom().format(formatter) + " | " + event.getTo().format(formatter);
+            return "E | " + (task.isDone() ? "1" : "0") + " | "
+                    + task.getDescription() + " | " + event.getFrom().format(formatter)
+                    + " | " + event.getTo().format(formatter);
         }
         throw new IllegalArgumentException("Unknown task type: " + task);
     }

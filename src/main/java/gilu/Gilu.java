@@ -1,7 +1,9 @@
 package gilu;
 
-import gilu.exception.GiluException;
 import java.io.IOException;
+
+import gilu.exception.GiluException;
+
 
 /**
  * Gilu is a chatbot that helps manage tasks.

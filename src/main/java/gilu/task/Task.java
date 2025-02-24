@@ -4,8 +4,8 @@ package gilu.task;
  * Represents a generic task with a description and completion status.
  */
 public class Task {
-    final String description;
     protected boolean isDone;
+    final String description;
 
     /**
      * Constructs a Task with the given description.

@@ -1,21 +1,19 @@
 package gilu;
 
-import gilu.exception.GiluException;
-import gilu.task.Deadline;
-import gilu.task.Event;
-import gilu.task.Task;
-import gilu.task.Todo;
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import gilu.exception.GiluException;
+import gilu.task.Deadline;
+import gilu.task.Event;
+import gilu.task.Task;
+import gilu.task.Todo;
 
 /**
  * Manages the list of tasks.
@@ -66,7 +64,7 @@ public class TaskList {
                 .collect(Collectors.toList());
 
         StringBuilder response = new StringBuilder();
-        response.append(ui.showMessage("Here is your sorted task list:\n"));
+        response.append(ui.showMessage("Here is your sorted task list:"));
 
         if (!sortedEvents.isEmpty()) {
             response.append("\nEvents:\n");
@@ -121,14 +119,12 @@ public class TaskList {
     public String listTasksOnDate(String input, Ui ui) throws GiluException {
         assert input != null && !input.isEmpty() : "Input should not be null or empty";
         assert ui != null : "UI object should not be null";
-
         try {
             String[] parts = input.split(" ");
             LocalDate date = LocalDate.parse(parts[1]);
 
-            StringBuilder response = new StringBuilder(ui.showMessage("Here are the tasks on " +
-                    date.format(DateTimeFormatter.ofPattern("MMM dd yyyy")) + ":\n"));
-
+            StringBuilder response = new StringBuilder(ui.showMessage("Here are the tasks on "
+                    + date.format(DateTimeFormatter.ofPattern("MMM dd yyyy")) + ":\n"));
             boolean hasTasks = false;
             for (Task task : tasks) {
                 if (task instanceof Deadline && ((Deadline) task).getBy().toLocalDate().equals(date)) {
@@ -213,7 +209,8 @@ public class TaskList {
 
         String[] parts = input.split(" /from ", 2);
         if (parts.length < 2) {
-            throw new GiluException("Your event needs details! Use: event <task> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>");
+            throw new GiluException("Your event needs details! Use: "
+                    + "event <task> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>");
         }
         String[] timeParts = parts[1].split(" /to ", 2);
         if (timeParts.length < 2) {
@@ -221,7 +218,8 @@ public class TaskList {
         }
 
         try {
-            LocalDateTime from = LocalDateTime.parse(timeParts[0].trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+            LocalDateTime from = LocalDateTime.parse(timeParts[0].trim(),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
             LocalDateTime to = LocalDateTime.parse(timeParts[1].trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
             Task task = new Event(parts[0].trim(), from, to);
             tasks.add(task);
@@ -289,8 +287,8 @@ public class TaskList {
         int taskIndex = getValidatedTaskIndex(input);
         Task removedTask = tasks.remove(taskIndex);
         saveTasks(storage);
-        return ui.showMessage("Noted. I've removed this task:\n   " + removedTask +
-                "\nNow you have " + tasks.size() + " tasks in the list.");
+        return ui.showMessage("Noted. I've removed this task:\n   " + removedTask
+                + "\nNow you have " + tasks.size() + " tasks in the list.");
     }
 
     /**
@@ -330,6 +328,16 @@ public class TaskList {
         return response.toString();
     }
 
+    /**
+     * Saves the current list of tasks to storage.
+     *
+     * <p>This method ensures that all tasks are persisted in the specified
+     * storage. If an {@link IOException} occurs during the saving process,
+     * an error message is printed to the console.</p>
+     *
+     * @param storage The {@link Storage} object used to save tasks.
+     * @throws AssertionError If the provided storage object is {@code null}.
+     */
     private void saveTasks(Storage storage) {
         assert storage != null : "Storage object should not be null";
 

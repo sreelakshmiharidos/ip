@@ -25,36 +25,36 @@ public enum Command {
         }
 
         // Extract the first word from input (command)
-        String[] words = input.trim().split("\\s+", 2);  // Split on first space only
-        String command = words[0].toLowerCase();  // Normalize to lowercase
+        String[] words = input.trim().split("\\s+", 2); // Split on first space only
+        String command = words[0].toLowerCase(); // Normalize to lowercase
 
         switch (command) {
-            case "list":
-                // If a second word is present and is a valid date, classify as LIST_DATE
-                if (words.length > 1 && DATE_PATTERN.matcher(words[1]).matches()) {
-                    return LIST_DATE;
-                }
-                return LIST;
-            case "sort":
-                return SORT;
-            case "mark":
-                return MARK;
-            case "unmark":
-                return UNMARK;
-            case "delete":
-                return DELETE;
-            case "todo":
-                return TODO;
-            case "deadline":
-                return DEADLINE;
-            case "event":
-                return EVENT;
-            case "find":
-                return FIND;
-            case "bye":
-                return EXIT;
-            default:
-                return UNKNOWN;
+        case "list":
+            // If a second word is present and is a valid date, classify as LIST_DATE
+            if (words.length > 1 && DATE_PATTERN.matcher(words[1]).matches()) {
+                return LIST_DATE;
+            }
+            return LIST;
+        case "sort":
+            return SORT;
+        case "mark":
+            return MARK;
+        case "unmark":
+            return UNMARK;
+        case "delete":
+            return DELETE;
+        case "todo":
+            return TODO;
+        case "deadline":
+            return DEADLINE;
+        case "event":
+            return EVENT;
+        case "find":
+            return FIND;
+        case "bye":
+            return EXIT;
+        default:
+            return UNKNOWN;
         }
     }
 }
