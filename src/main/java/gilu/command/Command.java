@@ -1,10 +1,17 @@
 package gilu.command;
 
+import java.util.regex.Pattern;
+
 /**
  * Represents the different commands supported by Gilu.
  */
 public enum Command {
     LIST, SORT, LIST_DATE, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, FIND, EXIT, UNKNOWN;
+
+    /**
+     * Regular expression to match date format YYYY-MM-DD.
+     */
+    private static final Pattern DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
 
     /**
      * Converts user input into a corresponding Command enum.
@@ -23,11 +30,13 @@ public enum Command {
 
         switch (command) {
             case "list":
+                // If a second word is present and is a valid date, classify as LIST_DATE
+                if (words.length > 1 && DATE_PATTERN.matcher(words[1]).matches()) {
+                    return LIST_DATE;
+                }
                 return LIST;
             case "sort":
                 return SORT;
-            case "list_date":
-                return LIST_DATE;
             case "mark":
                 return MARK;
             case "unmark":
@@ -45,7 +54,8 @@ public enum Command {
             case "bye":
                 return EXIT;
             default:
-                return UNKNOWN;  // Unknown commands
+                return UNKNOWN;
         }
     }
 }
+
