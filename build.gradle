@@ -45,8 +45,7 @@ test {
 }
 
 application {
-    mainClass.set("gilu.Mainls" +
-            "")
+    mainClass.set("gilu.Main")
 }
 
 shadowJar {
